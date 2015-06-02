@@ -2,13 +2,13 @@ require 'test_helper'
 
 describe Ramverk::Router do
   before(:each) do
-    MockRouter = Class.new(Ramverk::Router) do
+    class MockRouter < Ramverk::Router
       error ArgumentError, :error_500
       def error_500(e = nil)
         res.status(500).write('[500] Kaboom!')
       end
     end
-    MockParentRouter = Class.new(MockRouter) do
+    class MockParentRouter < MockRouter
       get '/test', :test
       def test
         raise ArgumentError, "Boom!"

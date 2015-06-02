@@ -14,7 +14,7 @@ describe Ramverk::Callbacks do
         res.write 'Hello World'
       end
 
-      def stop
+      private def stop
         res.write('stop')
       end
     end

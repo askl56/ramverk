@@ -23,19 +23,27 @@ module Ramverk
   #
   # @author Tobias Sandelius <tobias@sandeli.us>
   class Application
-    include ::ClassAttribute
-
     # @api private
-    class_attribute :middleware, :config, :routers
+    # @see http://www.ruby-doc.org/core/Class.html#method-i-inherited
+    def self.inherited(base)
+      super
 
-    # Application configuration
-    self.config = Configuration.new
+      base.class_eval do
+        include ::ClassAttribute
 
-    # @api private
-    self.routers = Routers.new
+        # @api private
+        class_attribute :middleware, :config, :routers
 
-    # Middleware builder.
-    self.middleware = Middleware.new
+        # Application configuration
+        self.config = Configuration.new
+
+        # @api private
+        self.routers = Routers.new
+
+        # Middleware builder.
+        self.middleware = Middleware.new
+      end
+    end
 
     # Environment based configurations.
     #

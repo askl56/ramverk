@@ -57,7 +57,6 @@ module Ramverk
     private def load_session_stack(app)
       if enabled = app.config[:session]
         opts = enabled.is_a?(::Hash) ? enabled : {}
-        @session_loaded = true
         use ::Rack::Session::Cookie, opts
       end
     end
@@ -79,8 +78,7 @@ module Ramverk
 
       if app.config.security[:session_hijacking]
         raise 'Session must be enabled in order to use Session Hijacking
-               protection' unless @session_loaded
-
+               protection' unless app.config[:session]
         use ::Rack::Protection::SessionHijacking
       end
 

@@ -22,18 +22,18 @@ describe Ramverk::Middleware do
   end
 
   describe 'with session enabled' do
-    before(:each) { MockApp = Class.new(Ramverk::Application) }
-    after(:each)  { Object.send :remove_const, :MockApp }
+    before(:each) { MockMiddlewareApp = ::Class.new(Ramverk::Application) }
+    after(:each)  { ::Object.send :remove_const, :MockMiddlewareApp }
 
     it 'rasies an error if session middleware is not enabled' do
-      MockApp.config.security[:session_hijacking] = true
-      ->{ middleware.load!(MockApp) }.must_raise RuntimeError
+      MockMiddlewareApp.config.security[:session_hijacking] = true
+      ->{ middleware.load!(MockMiddlewareApp) }.must_raise RuntimeError
     end
 
     it 'enables session hijacking middleware' do
-      MockApp.config[:session] = { secret: '<secret>' }
-      MockApp.config.security[:session_hijacking] = true
-      middleware.load!(MockApp)
+      MockMiddlewareApp.config[:session] = { secret: '<secret>' }
+      MockMiddlewareApp.config.security[:session_hijacking] = true
+      middleware.load!(MockMiddlewareApp)
       middleware.stack.must_include [Rack::Protection::SessionHijacking, [], nil]
     end
   end

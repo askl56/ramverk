@@ -18,7 +18,7 @@ describe Ramverk::Application do
         config[:raise_errors] = false
       end
       MockApp.config[:raise_errors].must_equal true
-      MockApp.configure :development do
+      MockApp.configure :development, :test do
         config[:raise_errors] = false
       end
       MockApp.config[:raise_errors].must_equal false

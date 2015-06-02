@@ -4,10 +4,9 @@ The Ruby web framework.
 
 ## Status
 
-[![Coverage Status](http://img.shields.io/coveralls/sandelius/ramverk/master.svg?style=flat)](https://coveralls.io/r/sandelius/ramverk?branch=master)
-[![Build Status](http://img.shields.io/travis/sandelius/ramverk.svg?branch=master&style=flat)](https://travis-ci.org/sandelius/ramverk)
-[![Code Climate](http://img.shields.io/codeclimate/github/sandelius/ramverk/badges/gpa.svg?style=flat)](https://codeclimate.com/github/sandelius/ramverk)
-
+[![Coverage Status](https://coveralls.io/repos/sandelius/ramverk/badge.svg?branch=master)](https://coveralls.io/r/sandelius/ramverk?branch=master)
+[![Build Status](https://travis-ci.org/sandelius/ramverk.svg?branch=master)](https://travis-ci.org/sandelius/ramverk)
+[![Code Climate](https://codeclimate.com/github/sandelius/ramverk/badges/gpa.svg)](https://codeclimate.com/github/sandelius/ramverk)
 
 ## Installation
 

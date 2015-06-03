@@ -5,6 +5,7 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
+require_relative 'route'
 require_relative 'response'
 
 module Ramverk
@@ -12,13 +13,14 @@ module Ramverk
     include ::ClassAttribute
 
     # @api private
-    class_attribute :routes, :error_handlers
+    class_attribute :routes, :error_handlers, :before_callbacks,
+                    :skip_before_callbacks
 
     # @api private
     self.routes = []
-
-    # @api private
     self.error_handlers = {}
+    self.before_callbacks = {}
+    self.skip_before_callbacks = {}
 
     # Add an error handler for an exception that may be raised.
     #
@@ -36,6 +38,57 @@ module Ramverk
     def self.error(*exceptions, method)
       exceptions.each{ |e| self.error_handlers[e] = method }
     end
+
+    # Adds a before filter that's run before the requested action.
+    #
+    # @example
+    #   before :authenticate, except: :login
+    #
+    #   def authenticate
+    #     res.status(401).write('Unauthorized!')
+    #   end
+    #
+    # @param *callbacks [Array<Symbol>] Callbacks to be called before the
+    #   action.
+    # @param except [Symbol, Array<Symbol>] Callbacks should be run on all
+    #   actions except the provided one(s).
+    # @param only [Symbol, Array<Symbol>] Callbacks should only be run on the
+    #   provided action(s).
+    #
+    # @return [void]
+    def self.before(*callbacks, except: nil, only: nil)
+      opts = build_callback_params(except, only)
+      callbacks.each { |cb| self.before_callbacks[cb] = opts }
+    end
+
+    # Skips an already defined callback. Mostly created inside a parent
+    # router.
+    #
+    # @example
+    #   skip_before :authenticate, only: :show
+    #
+    #   def show
+    #     # authenticate is not run before this action
+    #   end
+    #
+    # @param *callbacks [Array<Symbol>] Callbacks to be skipped.
+    # @param except [Symbol, Array<Symbol>] Callbacks should be skipped on all
+    #   actions except the provided one(s).
+    # @param only [Symbol, Array<Symbol>] Callbacks should only be skipped on
+    #  the provided action(s).
+    #
+    # @return [void]
+    def self.skip_before(*callbacks, except: nil, only: nil)
+      opts = build_callback_params(except, only)
+      callbacks.each { |cb| self.skip_before_callbacks[cb] = opts }
+    end
+
+    # @api private
+    def self.build_callback_params(except, only)
+      { except: except ? Array(except) : nil,
+        only: only ? Array(only) : nil }
+    end
+    private_class_method :build_callback_params
 
     # Adds a new route to the routers collection.
     #
@@ -166,98 +219,31 @@ module Ramverk
     #
     # @return [void]
     private def process_action(action)
+      run_callbacks(
+        self.class.before_callbacks,
+        self.class.skip_before_callbacks,
+        action
+      )
+
       send(action)
+    end
+
+    # @api private
+    private def run_callbacks(callbacks, skips, action)
+      callbacks.each do |cb, opts|
+        if skip_opts = skips[cb]
+          next if skip_opts[:only]   && skip_opts[:only].include?(action)
+          next if skip_opts[:except] && !skip_opts[:except].include?(action)
+        end
+
+        next if opts[:only]   && !opts[:only].include?(action)
+        next if opts[:except] && opts[:except].include?(action)
+
+        send(cb)
+      end
     end
 
     # Error raised when the requested action method is not found.
     class NoActionError < ::NoMethodError ; end
-  end
-
-  # The Route class represents a single route.
-  #
-  # @author Tobias Sandelius <tobias@sandeli.us>
-  #
-  # @attr_reader methods [Array] Request methods to be matched.
-  # @attr_reader path [String] URL path.
-  # @attr_reader action [Symbol] Name of the action this route is going to call.
-  # @attr_reader options [Hash] Route options.
-  # @attr_reader pattern [Regexp] Matchable regular expression. Created after compilation.
-  class Route
-    # @private
-    DEFAULT_STARTING = '\A'.freeze
-    # @private
-    DEFAULT_ENDING = '\z'.freeze
-
-    # @api private
-    COLON_REGEXP = /(^?):([\w]+)/.freeze
-    # @api private
-    COLON_REPLACE_REGEXP = '[\w\-]+'.freeze
-
-    # @api private
-    STAR_REGEXP = /(^?)\*([\w]+)/.freeze
-    # @api private
-    STAR_REPLACE_REGEXP = '(?<\2>.*)'.freeze
-
-    # @api private
-    OPTIONAL_REGEXP = /\((.*)\)/.freeze
-    # @api private
-    OPTIONAL_REPLACE_REGEXP = '(?:\1)?'.freeze
-
-    # @private
-    PATH_SEPARATOR = '/'.freeze
-
-    # @private
-    TRIM_REGEXP = /\A[\/]+|[\/]+\z/.freeze
-
-    attr_reader :methods, :path, :action, :options, :pattern
-
-    # Object initializer.
-    #
-    # @param methods [String, Array<String>] Request method(s) to be matched.
-    # @param path [String, Regexp] URL path.
-    # @param action [Symbol] Name of the action this route is going to call.
-    # @param options [Hash] Route options.
-    def initialize(methods, path, action, options = {})
-      @methods = Array(methods)
-      @path    = path
-      @action  = action
-      @options = options
-    end
-
-    # Prepends the current path with the given one.
-    #
-    # @param path [String] path to be prepended.
-    #
-    # @return [void]
-    def prepend_path(path)
-      @path.insert 0, path + PATH_SEPARATOR
-    end
-
-    # Compiles the path into a matchable regular expression.
-    #
-    # @api private
-    #
-    # @return [Regexp]
-    def compile!
-      @path = sanitize_path(@path)
-      @pattern = path_to_regexp(@path)
-    end
-
-    # @api private
-    private def sanitize_path(path)
-      path.gsub!(/[\/]{2,}/, PATH_SEPARATOR)
-      path.gsub!(TRIM_REGEXP, '')
-      path.insert(0, PATH_SEPARATOR)
-      path
-    end
-
-    # @api private
-    private def path_to_regexp(path)
-      pattern = path.dup
-      pattern.gsub!(OPTIONAL_REGEXP, OPTIONAL_REPLACE_REGEXP)
-      pattern.gsub!(STAR_REGEXP, STAR_REPLACE_REGEXP)
-      pattern.gsub!(COLON_REGEXP, "(?<\\2>#{COLON_REPLACE_REGEXP})")
-      ::Regexp.new(DEFAULT_STARTING + pattern + DEFAULT_ENDING)
-    end
   end
 end

@@ -21,4 +21,12 @@ describe Ramverk do
       Ramverk.env?(:development, :production).must_equal false
     end
   end
+
+  describe '.application' do
+    it 'sets the main application and gets it' do
+      class TestRamverkApplication < Ramverk::Application ; end
+      Ramverk.application.must_equal TestRamverkApplication
+      Ramverk.application nil
+    end
+  end
 end

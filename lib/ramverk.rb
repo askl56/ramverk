@@ -46,4 +46,14 @@ module Ramverk
   def self.env?(*envs)
     envs.include?(env)
   end
+
+  # Constains the main application class constant.
+  #
+  # @param app [Ramverk::Application] Only used internal.
+  #
+  # @return [Ramverk::Application]
+  def self.application(app = nil)
+    @app = app if app
+    @app
+  end
 end

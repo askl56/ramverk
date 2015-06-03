@@ -28,6 +28,9 @@ module Ramverk
     def self.inherited(base)
       super
 
+      # Store the main app constant
+      Ramverk.application(base)
+
       base.class_eval do
         include ::ClassAttribute
 

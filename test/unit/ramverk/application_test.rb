@@ -40,4 +40,14 @@ describe Ramverk::Application do
       res[0].must_equal 500
     end
   end
+
+  describe '.before_load & .after_load' do
+    it 'sets config values' do
+      TestOnLoadApplication.config[:first_name] = nil
+      TestOnLoadApplication.config[:last_name] = nil
+      TestOnLoadApplication.load!
+      TestOnLoadApplication.config[:first_name].must_equal 'Tobias'
+      TestOnLoadApplication.config[:last_name].must_equal 'Sandelius'
+    end
+  end
 end

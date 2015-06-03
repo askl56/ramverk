@@ -32,7 +32,7 @@ module Ramverk
         include ::ClassAttribute
 
         # @api private
-        class_attribute :middleware, :config, :routers
+        class_attribute :middleware, :config, :routers, :on_load
 
         # Application configuration
         self.config = Configuration.new
@@ -42,7 +42,42 @@ module Ramverk
 
         # Middleware builder.
         self.middleware = Middleware.new
+
+        # @api private
+        self.on_load = { before: [], after: [] }
       end
+    end
+
+    # Hooks to be called before the application has loaded.
+    #
+    # @example
+    #   class App < Ramverk::Application
+    #     before_load do |app|
+    #       initialize_stuff
+    #     end
+    #   end
+    #
+    # @param &block [Proc] Block callback.
+    #
+    # @return [void]
+    def self.before_load(&block)
+      self.on_load[:before] << block
+    end
+
+    # Hooks to be called after the application has loaded.
+    #
+    # @example
+    #   class App < Ramverk::Application
+    #     after_load do |app|
+    #       finalize_stuff
+    #     end
+    #   end
+    #
+    # @param &block [Proc] Block callback.
+    #
+    # @return [void]
+    def self.after_load(&block)
+      self.on_load[:after] << block
     end
 
     # Environment based configurations.

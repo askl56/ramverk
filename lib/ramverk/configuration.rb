@@ -63,11 +63,15 @@ module Ramverk
     #
     # @return [void]
     def load!(app)
+      app.on_load[:before].each { |block| block.call(app) }
+
       # Preload routes regular expressions
       app.routers.load!
 
       # You should always use protection!
       app.middleware.load!(app)
+
+      app.on_load[:after].each { |block| block.call(app) }
     end
   end
 end

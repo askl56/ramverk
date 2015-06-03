@@ -1,50 +1,25 @@
 require 'test_helper'
 
 describe Ramverk::Router do
-  before(:each) do
-
-    class MockRouter < Ramverk::Router
-      get '/', :index
-      def index
-        res.write 'Hello World'
-      end
-      get '/:id', :show
-      def show
-        res.write "post-#{params['id']}"
-      end
-    end
-    class MockParentRouter < MockRouter
-      get '/unknown', :unknown
-      post '', :create
-      def create
-      end
-    end
-  end
-
-  after(:each) do
-    Object.send :remove_const, :MockRouter
-    Object.send :remove_const, :MockParentRouter
-  end
-
   describe '.route' do
     it 'sets up all the routes and includes the root' do
-      MockRouter.routes.size.must_equal 2
-      MockRouter.routes.last.path.must_equal '/:id'
+      TestRouter.routes.size.must_equal 2
+      TestRouter.routes.last.path.must_equal '/:id'
     end
 
     it 'inherit routes' do
-      MockParentRouter.routes.size.must_equal 4
-      MockRouter.routes.size.must_equal 2
+      TestParentRouter.routes.size.must_equal 4
+      TestRouter.routes.size.must_equal 2
     end
 
     it 'raises NameError if action name is reserved' do
-      ->{ MockRouter.get('/hello', :request) }.must_raise NameError
+      ->{ TestRouter.get('/hello', :request) }.must_raise NameError
     end
   end
 
   describe 'initialize methods' do
     it 'sets upp instance variables for public methods' do
-      ctrl = MockRouter.new(rack_request('/blog'))
+      ctrl = TestRouter.new(rack_request('/blog'))
       ctrl.request.is_a?(Rack::Request).must_equal true
       ctrl.req.is_a?(Rack::Request).must_equal true
       ctrl.response.is_a?(Ramverk::Response).must_equal true
@@ -57,14 +32,14 @@ describe Ramverk::Router do
   describe '#process_route' do
     it 'raises NoActionError if method is not found' do
       ->{
-        route = MockParentRouter.routes[2]
-        MockParentRouter.new(rack_request('/blog')).process_route(route)
+        route = TestParentRouter.routes[2]
+        TestParentRouter.new(rack_request('/blog')).process_route(route)
       }.must_raise Ramverk::Router::NoActionError
     end
 
     it 'stores the matched route' do
-      route  = MockRouter.routes[0]
-      router = MockRouter.new(rack_request('/'))
+      route  = TestRouter.routes[0]
+      router = TestRouter.new(rack_request('/'))
       router.route.must_equal nil
       router.process_route(route)
       router.route.must_equal route

@@ -20,10 +20,8 @@ describe Ramverk::Configuration do
   end
 
   describe '#load!' do
-    before(:each) { MockConfigApp = Class.new(Ramverk::Application) }
-    after(:each) { ::Object.send :remove_const, :MockConfigApp }
     it 'loads up middleware, routers etc' do
-      config.load!(MockConfigApp)
+      config.load!(TestConfigApplication)
     end
   end
 end

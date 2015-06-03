@@ -22,6 +22,8 @@ $:.unshift 'lib'
 
 require 'ramverk'
 
+Dir["#{__dir__}/fixtures/classes/*.rb"].each { |f| require f }
+
 def rack_request(*args)
   ::Rack::Request.new(rack_env(*args))
 end

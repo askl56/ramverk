@@ -57,32 +57,6 @@ end
 run App.new
 ```
 
-### Router callbacks
-```ruby
-class AppRouter < Ramverk::Router
-  before :authenticate
-
-  private def authenticate
-    res.status(401).write('HALT!')
-  end
-end
-
-class PagesRouter < AppRouter
-  skip_before :authenticate, only: :index
-
-  get '/pages', :index
-  def index
-    res.write 'Index'
-  end
-
-  post '/pages', :create
-  def create
-    # This will never be hit since `authenticate` renders a response
-    res.status(201).write('Resource Created')
-  end
-end
-```
-
 ## Contributing
 
 1. Fork it ( https://github.com/sandelius/ramverk/fork )

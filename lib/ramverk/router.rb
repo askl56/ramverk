@@ -7,20 +7,19 @@
 
 require_relative 'route'
 require_relative 'response'
+require_relative 'callbacks'
 
 module Ramverk
   class Router
     include ::ClassAttribute
 
     # @api private
-    class_attribute :routes, :error_handlers, :before_callbacks,
-                    :skip_before_callbacks
+    class_attribute :routes, :error_handlers, :before_callbacks
 
     # @api private
     self.routes = []
     self.error_handlers = {}
-    self.before_callbacks = {}
-    self.skip_before_callbacks = {}
+    self.before_callbacks = Callbacks.new
 
     # Add an error handler for an exception that may be raised.
     #
@@ -54,11 +53,11 @@ module Ramverk
     #   actions except the provided one(s).
     # @param only [Symbol, Array<Symbol>] Callbacks should only be run on the
     #   provided action(s).
+    # @param &block [Proc] Callback block (optional).
     #
     # @return [void]
-    def self.before(*callbacks, except: nil, only: nil)
-      opts = build_callback_params(except, only)
-      callbacks.each { |cb| self.before_callbacks[cb] = opts }
+    def self.before(*callbacks, except: nil, only: nil, &block)
+      self.before_callbacks.add(*callbacks, except: except, only: only, &block)
     end
 
     # Skips an already defined callback. Mostly created inside a parent
@@ -79,16 +78,8 @@ module Ramverk
     #
     # @return [void]
     def self.skip_before(*callbacks, except: nil, only: nil)
-      opts = build_callback_params(except, only)
-      callbacks.each { |cb| self.skip_before_callbacks[cb] = opts }
+      self.before_callbacks.skip(*callbacks, except: except, only: only)
     end
-
-    # @api private
-    def self.build_callback_params(except, only)
-      { except: except ? Array(except) : nil,
-        only: only ? Array(only) : nil }
-    end
-    private_class_method :build_callback_params
 
     # Adds a new route to the routers collection.
     #
@@ -219,28 +210,8 @@ module Ramverk
     #
     # @return [void]
     private def process_action(action)
-      run_callbacks(
-        self.class.before_callbacks,
-        self.class.skip_before_callbacks,
-        action
-      )
-
+      self.class.before_callbacks.run(self, action)
       send(action)
-    end
-
-    # @api private
-    private def run_callbacks(callbacks, skips, action)
-      callbacks.each do |cb, opts|
-        if skip_opts = skips[cb]
-          next if skip_opts[:only]   && skip_opts[:only].include?(action)
-          next if skip_opts[:except] && !skip_opts[:except].include?(action)
-        end
-
-        next if opts[:only]   && !opts[:only].include?(action)
-        next if opts[:except] && opts[:except].include?(action)
-
-        send(cb)
-      end
     end
 
     # Error raised when the requested action method is not found.

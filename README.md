@@ -60,8 +60,6 @@ run App.new
 ### Router callbacks
 ```ruby
 class AppRouter < Ramverk::Router
-  include Ramverk::Callbacks
-
   before :authenticate
 
   private def authenticate

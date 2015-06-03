@@ -15,23 +15,3 @@ namespace :test do
 end
 
 task default: :test
-
-# class PagesController
-#   include Ramverk::Controller
-#   include Ramverk::Controller::Callbacks
-#   include Ramverk::Controller::Rescuer # Keep at bottom
-
-#   get '/home'
-#   def index
-     # response.status(404).json({})
-#   end
-# end
-
-
-# class MyApp < Ramverk::Application
-#   mount HomeController
-#   mount '/pages/:page_id', PagesController
-
-#   mount '/api', Controllers::PagesController
-#   mount '/api/workspaces', Controllers::WorkspacesController # root = /api/workspaces
-# end

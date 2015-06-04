@@ -23,3 +23,18 @@ class TestCallbacksParentRouter < TestCallbacksRouter
     res.write 'hit'
   end
 end
+
+class TestSkipCallbacksRouter < Ramverk::Router
+  before :stop
+  private def stop
+    res.write('stop')
+  end
+end
+
+class TestSkipParentCallbacksRouter < TestSkipCallbacksRouter
+  skip_before :stop
+  get '/', :index
+  def index
+    res.write('nonstop')
+  end
+end

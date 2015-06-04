@@ -26,4 +26,12 @@ describe Ramverk::Router do
     res = req.get('/hit')
     res.body.must_equal 'hit'
   end
+
+  it 'skips all if none of only and except is set' do
+    routers.map TestSkipParentCallbacksRouter
+    routers.load!
+    req = Rack::MockRequest.new(routers)
+    res = req.get('/')
+    res.body.must_equal 'nonstop'
+  end
 end

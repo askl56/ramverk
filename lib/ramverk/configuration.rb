@@ -88,7 +88,7 @@ module Ramverk
       # Preload routes regular expressions
       app.routers.load!
 
-      # You should always use protection!
+      # Setup all middleware
       app.middleware.load!(app)
 
       app.on_load[:after].each { |block| block.call(app) }

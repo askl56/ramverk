@@ -10,6 +10,11 @@ class TestRouters2Router < Ramverk::Router
   def say
     res.write(params['word'])
   end
+
+  get '/rack/yeah', :rack
+  def rack
+    res.write('hello from router')
+  end
 end
 
 class TestNoResponseTestRouter < Ramverk::Router

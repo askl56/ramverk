@@ -31,6 +31,14 @@ module Ramverk
 
     # Map router(s).
     #
+    # @note If a Rack app is mapped, that path path it WILL HAVE precedence
+    # over mappeped routers. Only mapp rack apps with url prefix you're not
+    # using with your routers.
+    #
+    # @example The Rack app (second one) will weight more that the router.
+    #   map '/assets', AssetsRouter
+    #   map '/assets', Sprockets::Environment.new.environment
+    #
     # @example With no root
     #   map FirstRouter, SecondRouter
     #
@@ -55,7 +63,7 @@ module Ramverk
       end
     end
 
-    # Loads up the middleware stack.
+    # Loads up the builder stack (middleware, routers and rack apps).
     #
     # @api private
     #
@@ -80,6 +88,8 @@ module Ramverk
       @builder.map('/') { run ::Ramverk::Endpoint.new(routers) }
     end
 
+    # Rack compatible endpoint.
+    # @api private
     def call(env)
       @builder.call(env)
     end
@@ -120,13 +130,14 @@ module Ramverk
   end
 
   class Endpoint
+    # @api private
+    # @param [Array<[String|nil, Ramverk::Router]>] Routers to match.
     def initialize(routers)
       @routers = routers
     end
 
     # Rack compatible endpoint.
     # @api private
-    # :nocov:
     def call(env)
       env['PATH_INFO'].sub!(/(\w)(\/+)\z/, '\1')
 

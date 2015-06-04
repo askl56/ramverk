@@ -86,6 +86,7 @@ describe Ramverk::Builder do
       builder.map '/rack', TestBuilderRackApplication
       builder.load!(Class.new(Ramverk::Application))
 
+      # This also shows that rack apps weight more than routers
       req = Rack::MockRequest.new(builder)
       res = req.get('/rack/yeah')
       res.body.must_equal 'hello from rack'

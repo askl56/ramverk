@@ -39,6 +39,11 @@ class PostsRouter < Ramverk::Router
   def create
     res.status(201).write('Resource Created')
   end
+
+  get '/:id', :show
+  def show
+    res.write("Your're reading post no: #{params['id']}")
+  end
 end
 
 class App < Ramverk::Application
@@ -46,11 +51,14 @@ class App < Ramverk::Application
 
   map '/posts', PostsRouter
 
+  # Native Rack apps is supported
+  map '/lobster', Rack::Lobster.new
+
   config[:session] = { secret: '<secret>' }
+  config.security[:session_hijacking] = true
 
   configure :development do
     config[:raise_errors] = true
-    config.security[:ip_spoofing] = false
   end
 end
 

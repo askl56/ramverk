@@ -28,6 +28,23 @@ module Ramverk
         session_hijacking: false,
         ip_spoofing: true
       }
+
+      @loaded = false
+    end
+
+    # Define a new configuration group with defaults.
+    #
+    # @example
+    #   config.define_group :assets, prefix: '/assets'
+    #   config.assets[:prefix] # => '/assets'
+    #
+    # @param name [Symbol] Name of the group.
+    # @param defaults [Hash] Group default options.
+    #
+    # @return [void]
+    def define_group(name, defaults = {})
+      singleton_class.class_eval do; attr_reader name; end
+      instance_variable_set "@#{name}", defaults
     end
 
     # Gets an existing configuration value.
@@ -61,8 +78,11 @@ module Ramverk
     #
     # @param app [Ramverk::Application] Ramverk application.
     #
-    # @return [void]
+    # @return [boolean]
     def load!(app)
+      return false if @loaded
+      @loaded = true
+
       app.on_load[:before].each { |block| block.call(app) }
 
       # Preload routes regular expressions
@@ -72,6 +92,8 @@ module Ramverk
       app.middleware.load!(app)
 
       app.on_load[:after].each { |block| block.call(app) }
+
+      true
     end
   end
 end

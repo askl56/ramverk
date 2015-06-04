@@ -64,7 +64,7 @@ module Ramverk
         is_proc = cb.is_a?(::Proc)
 
         if !is_proc && skip_opts = @skips[cb]
-          next if !skip_opts[:only] && !skip_opts[:except]
+          next if !skip_opts[:only]  && !skip_opts[:except]
           next if skip_opts[:only]   && skip_opts[:only].include?(action)
           next if skip_opts[:except] && !skip_opts[:except].include?(action)
         end

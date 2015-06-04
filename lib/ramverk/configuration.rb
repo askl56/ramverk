@@ -85,11 +85,8 @@ module Ramverk
 
       app.on_load[:before].each { |block| block.call(app) }
 
-      # Preload routes regular expressions
-      app.routers.load!
-
-      # Setup all middleware
-      app.middleware.load!(app)
+      # Setup all middleware, Routers and rack endpoints.
+      app.builder.load!(app)
 
       app.on_load[:after].each { |block| block.call(app) }
 

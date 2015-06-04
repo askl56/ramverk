@@ -16,7 +16,7 @@ describe Ramverk::Route do
   describe '#compile!' do
     it 'transforms :, () into regexp' do
       route = route_class.new('GET', '/users/:id(/:username)', :show)
-      route.compile!
+      route.compile!(nil)
       ('/users/54/tobias/sandelius' =~ route.pattern).must_equal nil
       ('/users/54/tobias-sandelius' =~ route.pattern).must_equal 0
       ('/users/54/sandelius' =~ route.pattern).must_equal 0
@@ -26,7 +26,7 @@ describe Ramverk::Route do
 
     it 'transforms * into catch all' do
       route = route_class.new('GET', '*url', :show)
-      route.compile!
+      route.compile!(nil)
       ('/users/54/tobias/sandelius' =~ route.pattern).must_equal 0
       ('/users/54/tobias-sandelius' =~ route.pattern).must_equal 0
       ('/users/54/sandelius' =~ route.pattern).must_equal 0
@@ -36,17 +36,14 @@ describe Ramverk::Route do
 
     it 'removes multiple and trailing slash' do
       route = route_class.new('GET', 'foo//bar////baz/', :show)
-      route.compile!
+      route.compile!(nil)
       route.path.must_equal('/foo/bar/baz')
     end
-  end
 
-  describe '#prepend_path' do
-    it 'prepends the existing path' do
+    it 'prepends a root if given' do
       route = route_class.new('GET', '/world', :show)
-      route.prepend_path('hello')
-      route.compile!
-      route.path.must_equal '/hello/world'
+      route.compile!('hello')
+      route.path.must_equal('/hello/world')
     end
   end
 end

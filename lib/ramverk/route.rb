@@ -57,22 +57,14 @@ module Ramverk
       @options = options
     end
 
-    # Prepends the current path with the given one.
-    #
-    # @param path [String] path to be prepended.
-    #
-    # @return [void]
-    def prepend_path(path)
-      @path.insert 0, path + PATH_SEPARATOR
-    end
-
     # Compiles the path into a matchable regular expression.
     #
     # @api private
     #
     # @return [Regexp]
-    def compile!
-      @path = sanitize_path(@path)
+    def compile!(root)
+      @path.insert 0, root + PATH_SEPARATOR if root && root != PATH_SEPARATOR
+      sanitize_path(@path)
       @pattern = path_to_regexp(@path)
     end
 
@@ -81,7 +73,6 @@ module Ramverk
       path.gsub!(/[\/]{2,}/, PATH_SEPARATOR)
       path.gsub!(TRIM_REGEXP, '')
       path.insert(0, PATH_SEPARATOR)
-      path
     end
 
     # @api private

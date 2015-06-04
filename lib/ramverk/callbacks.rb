@@ -63,16 +63,20 @@ module Ramverk
       @stack.each do |cb, opts|
         is_proc = cb.is_a?(::Proc)
 
-        if !is_proc && skip_opts = @skips[cb]
-          next if !skip_opts[:only]  && !skip_opts[:except]
-          next if skip_opts[:only]   && skip_opts[:only].include?(action)
-          next if skip_opts[:except] && !skip_opts[:except].include?(action)
-        end
-
+        next if !is_proc && skip?(cb, action)
         next if opts[:only]   && !opts[:only].include?(action)
         next if opts[:except] && opts[:except].include?(action)
 
         is_proc ? context.instance_eval(&cb) : context.send(cb)
+      end
+    end
+
+    # @api private
+    private def skip?(cb, action)
+      if skip_opts = @skips[cb]
+        return true if !skip_opts[:only]  && !skip_opts[:except]
+        return true if skip_opts[:only]   && skip_opts[:only].include?(action)
+        return true if skip_opts[:except] && !skip_opts[:except].include?(action)
       end
     end
 

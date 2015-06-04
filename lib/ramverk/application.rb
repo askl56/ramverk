@@ -8,9 +8,8 @@
 require 'rack'
 require 'class_attribute'
 
-require_relative 'middleware'
 require_relative 'configuration'
-require_relative 'routers'
+require_relative 'builder'
 
 module Ramverk
   # Ramverk application.
@@ -18,7 +17,7 @@ module Ramverk
   # @example
   #   require 'ramverk'
   #
-  #   class MyApp < Ramverk::Application
+  #   class Application < Ramverk::Application
   #   end
   #
   # @author Tobias Sandelius <tobias@sandeli.us>
@@ -35,16 +34,13 @@ module Ramverk
         include ::ClassAttribute
 
         # @api private
-        class_attribute :middleware, :config, :routers, :on_load
+        class_attribute :builder, :config, :on_load
 
         # Application configuration
         self.config = Configuration.new
 
         # @api private
-        self.routers = Routers.new
-
-        # Middleware builder.
-        self.middleware = Middleware.new
+        self.builder = Builder.new
 
         # @api private
         self.on_load = { before: [], after: [] }
@@ -101,14 +97,14 @@ module Ramverk
       class_eval(&block) if ::Ramverk.env?(*envs)
     end
 
-    # @see Ramverk::Middleware#use
+    # @see Ramverk::Builder#use
     def self.use(middleware, *args, &block)
-      self.middleware.use(middleware, *args, &block)
+      self.builder.use(middleware, *args, &block)
     end
 
-    # @see Ramverk::Routers#map
+    # @see Ramverk::Builder#map
     def self.map(*routers)
-      self.routers.map(*routers)
+      self.builder.map(*routers)
     end
 
     # Load up application configuration.
@@ -128,7 +124,7 @@ module Ramverk
     # Rack compatible endpoint.
     # @api private
     def call(env)
-      self.class.middleware.call(env)
+      self.class.builder.call(env)
     rescue ::Exception => e
       raise e if self.class.config[:raise_errors]
       [500, {}, ['[500] Internal Server Error']]

@@ -4,7 +4,7 @@ describe Ramverk::Application do
   describe '.use' do
     it 'is a short-hand for middleware.use' do
       TestApplication.use Rack::Head
-      TestApplication.middleware.stack.must_include [Rack::Head, [], nil]
+      TestApplication.builder.middleware.must_include [Rack::Head, [], nil]
     end
   end
 
@@ -24,7 +24,7 @@ describe Ramverk::Application do
 
   describe '.map' do
     it 'adds routers to the stack' do
-      TestApplication.routers.stack.must_include TestApplicationRouter
+      TestApplication.builder.routers.must_include [nil, TestApplicationRouter]
     end
   end
 

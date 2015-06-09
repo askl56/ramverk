@@ -6,6 +6,7 @@
 # file that was distributed with this source code.
 
 require 'rack'
+require 'rack/parser'
 
 require_relative 'configuration'
 require_relative 'router'
@@ -165,6 +166,7 @@ module Ramverk
         @app ||= begin
           onload[:before].each { |block| block.call(self) }
           setup_session_middleware
+          setup_body_parser_middleware
           middleware.each { |m, args, block| builder.use m, *args, &block }
           setup_routers
           builder.run self.new
@@ -180,6 +182,13 @@ module Ramverk
       rescue ::Exception => e
         raise e if config.raise_errors
         [500, {}, ['[500] Internal Server Error']]
+      end
+
+      # @api private
+      private def setup_body_parser_middleware
+        unless config.body_parsers.empty?
+          use ::Rack::Parser, parsers: config.body_parsers
+        end
       end
 
       # @api private

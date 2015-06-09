@@ -19,12 +19,33 @@ module Ramverk
       @raise_errors = false
       @sessions = false
       @json_renderer = ->(data) { ::JSON.generate(data) }
+      @body_parsers = {
+        'application/json' => ->(body) { ::JSON.parse(body) }
+      }
       @default_headers = {
         'Content-Type' => 'text/plain',
         'X-Frame-Options' => 'SAMEORIGIN',
         'X-XSS-Protection' => '1; mode=block',
         'X-Content-Type-Options' => 'nosniff'
       }
+    end
+
+    # Body parsers. By default the framework only parses normal and JSON
+    # bodies. Here you can change what to parse.
+    #
+    # @example Clear all parsers and only parse normal body:
+    #   config.body_parsers.clear
+    #
+    # @example Change the JSON parser to use `Oj` instead:
+    #   config.body_parsers['application/json'] = ->(body) { Oj.load(body) }
+    #   # or
+    #   config.body_parsers.merge!(
+    #     'application/json' => ->(body) { Oj.load(body) }
+    #   )
+    #
+    # @return [Hash]
+    def body_parsers
+      @body_parsers
     end
 
     # Default headers that is sent to the client.

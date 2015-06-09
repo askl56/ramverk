@@ -37,6 +37,35 @@ config.response.default_headers.merge!(
 )
 ```
 
+#### `body_parsers`
+Body parsers for different kind of content types. By default normal and `JSON` bodies are being parsed.
+
+Default value:
+
+```ruby
+{
+  'application/json' => ->(body) { ::JSON.parse(body) }
+}
+```
+
+You can add parsers for `xml`, `msgpack` or what ever you need.
+
+Change the JSON parser to use `Oj` instead:
+
+```ruby
+config.body_parsers['application/json'] = ->(body) { Oj.load(body) }
+# or
+config.body_parsers.merge!(
+  'application/json' => ->(body) { Oj.load(body) }
+)
+```
+
+To disbale all parsers and only accept normal bodies you can clear the hash:
+
+```ruby
+config.body_parsers.clear
+```
+
 #### `json_renderer`
 JSON renderer to be used when generating JSON via `res.json` in actions.
 

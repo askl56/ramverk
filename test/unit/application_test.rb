@@ -119,5 +119,14 @@ describe Ramverk::Application do
       res.status.must_equal 404
     end
   end
+
+  it 'parses JSON bodies' do
+    app.map BodyParserTestRouter
+    app.load
+    req = Rack::MockRequest.new(app)
+    payload = JSON.generate(username: 'sandelius', password: 'secret')
+    res = req.post '/body-parser', 'CONTENT_TYPE' => 'application/json', input: payload
+    res.body.must_equal 'sandelius-secret'
+  end
 end
 

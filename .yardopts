@@ -1,0 +1,5 @@
+--output-dir yardoc
+README.md
+LICENSE.txt
+CODE_OF_CONDUCT.md
+lib/**/*.rb

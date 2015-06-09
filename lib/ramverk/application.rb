@@ -164,19 +164,11 @@ module Ramverk
       def load
         @app ||= begin
           onload[:before].each { |block| block.call(self) }
-
           setup_session_middleware
-
           middleware.each { |m, args, block| builder.use m, *args, &block }
-
-          routers.each do |root, router|
-            router.routes.each{ |route| route.compile(root) }
-          end
-
+          setup_routers
           builder.run self.new
-
           onload[:after].each { |block| block.call(self) }
-
           builder
         end
       end
@@ -195,6 +187,13 @@ module Ramverk
         if sessions = config.sessions
           opts = sessions.is_a?(::Hash) ? sessions : {}
           use ::Rack::Session::Cookie, opts
+        end
+      end
+
+      # @api private
+      private def setup_routers
+        routers.each do |root, router|
+          router.routes.each{ |route| route.compile(root) }
         end
       end
     end

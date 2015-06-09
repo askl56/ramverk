@@ -165,10 +165,7 @@ module Ramverk
         @app ||= begin
           onload[:before].each { |block| block.call(self) }
 
-          if sessions = config.sessions
-            opts = sessions.is_a?(::Hash) ? sessions : {}
-            use ::Rack::Session::Cookie, opts
-          end
+          setup_session_middleware
 
           middleware.each { |m, args, block| builder.use m, *args, &block }
 
@@ -191,6 +188,14 @@ module Ramverk
       rescue ::Exception => e
         raise e if config.raise_errors
         [500, {}, ['[500] Internal Server Error']]
+      end
+
+      # @api private
+      private def setup_session_middleware
+        if sessions = config.sessions
+          opts = sessions.is_a?(::Hash) ? sessions : {}
+          use ::Rack::Session::Cookie, opts
+        end
       end
     end
 

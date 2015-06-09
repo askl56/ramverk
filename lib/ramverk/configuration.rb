@@ -77,31 +77,5 @@ module Ramverk
       @json_renderer = renderer if renderer
       @json_renderer
     end
-
-    # Define a new configuration group with defaults.
-    #
-    # @example
-    #   class AssetsConfig
-    #     def initialize
-    #       @debug = false
-    #     end
-    #
-    #     def debug(enable = nil)
-    #       @debug = enable unless enable == nil
-    #       @debug
-    #     end
-    #   end
-    #
-    #   config.define_group(:assets, AssetsConfig.new)
-    #   config.assets.debug true
-    #
-    # @param name [Symbol] Name of the group.
-    # @param value [*] Config value.
-    #
-    # @return [void]
-    def define_group(name, value)
-      define_singleton_method(name) { instance_variable_get "@#{name}" }
-      instance_variable_set "@#{name}", value
-    end
   end
 end

@@ -213,7 +213,7 @@ module Ramverk
         end
       end
 
-      [404, {}, ['Not Found']]
+      [404, {}, ['[404] Not Found']]
     end
   end
 end

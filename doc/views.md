@@ -70,10 +70,10 @@ end
 
 Now the `pages/index.erb` template is rendered from the `yield` statement.
 
-If layouts are enabled by default you can disable it locally by setting `layout: false` in the `render` options hash.
+If layouts are enabled globally you can disable it locally by setting `layout: false` in the `render` options hash.
 
 ```ruby
-res.render 'pages/index', layout: false, posts: posts
+render 'pages/index', layout: false, posts: posts
 ```
 
 ## Partials
@@ -102,4 +102,13 @@ The `render_to_string` method is also useful in actions if you want to render a 
 def index
   html = render_to_string('pages/index')
 end
+```
+
+## HTML Escaping
+
+The template variables is not escaped by default, like in e.g Ruby on Rails. Here you need to call the `h` method in order to escape text.
+
+```html
+<%= '<p></p>' %> will become: '<p></p>'
+<%=h '<p></p>' %> will become: '&lt;p&gt;&lt;&#x2F;p&gt;'
 ```

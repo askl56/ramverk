@@ -16,7 +16,7 @@ Add this line to your application's Gemfile:
 gem 'ramverk'
 ```
 
-or clone the sanbox application to get started with a basic structure:
+or clone the sandbox application to get started with a basic structure:
 
 ```bash
 git clone git@github.com:ramverk/sandbox.git app_name

@@ -82,7 +82,7 @@ config.view.layouts_dir 'another_folder'
 ```
 
 #### `view.cache`
-Template cache to be used. By default it uses `Tilt::Cache` that store compiled templates in memory. Cache objects must implement a `fetch(key, &block)` and `clear`.
+Template cache to be used. By default it uses `Tilt::Cache` that store compiled templates in memory. Cache objects must implement `fetch(key, &block)` and `clear`.
 
 ```ruby
 config.view.cache Tilt::Cache.new # (Default)

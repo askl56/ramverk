@@ -3,6 +3,13 @@ require 'test_helper'
 describe Ramverk::Response do
   let(:res) { Ramverk::Response.new(TestApplication) }
 
+  it 'has a content type by default' do
+    result = catch :finished do
+      res.write
+    end
+    result[1]['Content-Type'].must_equal 'text/plain'
+  end
+
   it 'use application default headers' do
     res.header.must_equal({
       'Content-Type' => 'text/plain',

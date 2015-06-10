@@ -46,9 +46,9 @@ module Ramverk
     #
     # @return [String, Ramverk::Response]
     def content_type(new_type = nil)
-      return @content_type unless new_type
+      return @header[CONTENT_TYPE] unless new_type
 
-      @content_type = if new_type.is_a?(::String)
+      @header[CONTENT_TYPE] = if new_type.is_a?(::String)
         new_type
       else
         ::Rack::Mime::MIME_TYPES[".#{new_type}"]
@@ -216,12 +216,8 @@ module Ramverk
         @header.delete CONTENT_TYPE
         @header.delete CONTENT_LENGTH
         @body = []
-      else
-        unless @header[CONTENT_LENGTH]
-          @header[CONTENT_LENGTH] = @body.join.bytesize.to_s
-        end
-
-        @header[CONTENT_TYPE] = @content_type
+      elsif !@header[CONTENT_LENGTH]
+        @header[CONTENT_LENGTH] = @body.join.bytesize.to_s
       end
 
       [@status, @header, @body]

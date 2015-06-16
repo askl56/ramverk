@@ -17,7 +17,7 @@ Route paths can also have dynamic segments and they'll be available in the `para
 ```ruby
 get '/posts/:id', :show
 def show
-  res.write("You're reading post: #{params['id]}")
+  res.write("You're reading post: #{params[:id]}")
 end
 ```
 

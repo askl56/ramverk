@@ -47,6 +47,13 @@ describe Ramverk::Router do
     end
   end
 
+  describe '#params' do
+    it 'symbolize nested keys' do
+      ctrl = TestRouter.new(rack_request('/test', 'GET', params: { user: { name: 'tobias' }}), TestApplication)
+      ctrl.params.must_equal({user: {name: 'tobias'}})
+    end
+  end
+
   describe '#process_route' do
     it 'raises NoActionError if method is not found' do
       ->{

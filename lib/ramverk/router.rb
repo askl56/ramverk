@@ -188,7 +188,7 @@ module Ramverk
     #
     # @return [Hash]
     def params
-      @_request.params
+      @_params ||= symbolize_keys!(@_request.params)
     end
 
     # Process and dispatch the given route.
@@ -240,6 +240,16 @@ module Ramverk
     private def process_action(action)
       self.class.callbacks.run(self, action)
       send(action)
+    end
+
+    # @api private
+    private def symbolize_keys!(hash)
+      hash.keys.each do |k|
+        v = hash.delete(k)
+        symbolize_keys!(v) if v.is_a?(::Hash)
+        hash[k.to_sym] = v
+      end
+      hash
     end
 
     # Error raised when the requested action method is not found.

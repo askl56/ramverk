@@ -8,7 +8,7 @@ class TestRouter < Ramverk::Router
   end
   get '/:id', :show
   def show
-    res.write "post-#{params['id']}"
+    res.write "post-#{params[:id]}"
   end
 end
 

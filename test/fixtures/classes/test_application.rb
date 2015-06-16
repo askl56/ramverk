@@ -16,6 +16,6 @@ end
 class BodyParserTestRouter < Ramverk::Router
   post '/body-parser', :create
   def create
-    res.write("#{params['username']}-#{params['password']}")
+    res.write("#{params[:username]}-#{params[:password]}")
   end
 end
